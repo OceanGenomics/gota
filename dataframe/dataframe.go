@@ -441,7 +441,7 @@ func (df DataFrame) DestructivePrepend(s series.Series) DataFrame {
 		return DataFrame{Err: fmt.Errorf("prepend: duplicate column name")}
 	}
 	columns := append([]series.Series{s}, df.columns...)
-	nrows, ncols, err := checkColumnsDimensions(df.columns...)
+	nrows, ncols, err := checkColumnsDimensions(columns...)
 	if err != nil {
 		return DataFrame{Err: err}
 	}
