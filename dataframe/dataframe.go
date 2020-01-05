@@ -427,6 +427,37 @@ func (df DataFrame) RBind(dfb DataFrame) DataFrame {
 	return New(expandedSeries...)
 }
 
+// DestructivePrepend adds a series (column) to the start of the dataframe. It
+// does *not* create a copy, so the old dataframe should be considered dead.
+// +OceanExtension
+func (df DataFrame) DestructivePrepend(s series.Series) DataFrame {
+	if df.Err != nil {
+		return df
+	}
+	if s.Len() != df.nrows {
+		return DataFrame{Err: fmt.Errorf("prepend: wrong dimensions")}
+	}
+	if idx := findInStringSlice(s.Name, df.Names()); idx != -1 {
+		return DataFrame{Err: fmt.Errorf("prepend: duplicate column name")}
+	}
+	columns := append([]series.Series{s}, df.columns...)
+	nrows, ncols, err := checkColumnsDimensions(df.columns...)
+	if err != nil {
+		return DataFrame{Err: err}
+	}
+	df = DataFrame{
+		columns: columns,
+		ncols:   ncols,
+		nrows:   nrows,
+	}
+	colnames := df.Names()
+	fixColnames(colnames)
+	for i, colname := range colnames {
+		df.columns[i].Name = colname
+	}
+	return df
+}
+
 // Mutate changes a column of the DataFrame with the given Series or adds it as
 // a new column if the column name does not exist.
 func (df DataFrame) Mutate(s series.Series) DataFrame {
