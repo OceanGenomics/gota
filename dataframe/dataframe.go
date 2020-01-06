@@ -440,7 +440,9 @@ func (df DataFrame) DestructivePrepend(s series.Series) DataFrame {
 	if idx := findInStringSlice(s.Name, df.Names()); idx != -1 {
 		return DataFrame{Err: fmt.Errorf("prepend: duplicate column name")}
 	}
+	fmt.Println("Adding column")
 	columns := append([]series.Series{s}, df.columns...)
+	fmt.Println("checking dimensions")
 	nrows, ncols, err := checkColumnsDimensions(columns...)
 	if err != nil {
 		return DataFrame{Err: err}
@@ -451,7 +453,9 @@ func (df DataFrame) DestructivePrepend(s series.Series) DataFrame {
 		nrows:   nrows,
 	}
 	colnames := df.Names()
+	fmt.Println("fixing colnames")
 	fixColnames(colnames)
+	fmt.Println("updating colnames")
 	for i, colname := range colnames {
 		df.columns[i].Name = colname
 	}
